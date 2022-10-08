@@ -1,3 +1,11 @@
+import logoImg from '../../assets/logo.svg'
+
+import { HeaderWrapper } from './styles'
+
 export function Header() {
-  return <h1>Header</h1>
+  return (
+    <HeaderWrapper>
+      <img src={logoImg} alt="" />
+    </HeaderWrapper>
+  )
 }
