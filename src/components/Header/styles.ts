@@ -3,7 +3,7 @@ import coverImg from '../../assets/header-cover.svg'
 
 export const HeaderWrapper = styled.header`
   width: 100%;
-  height: 18.5rem;
+  min-height: 18.5rem;
   padding: 4rem;
 
   background-image: url(${coverImg});
