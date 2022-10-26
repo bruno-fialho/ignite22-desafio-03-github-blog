@@ -63,32 +63,6 @@ export const ProfileTextContent = styled.div`
       color: ${(props) => props.theme['base-title']};
       margin-bottom: 0.5rem;
     }
-
-    div {
-      border: 0;
-
-      a {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: ${(props) => props.theme.blue};
-
-        text-transform: uppercase;
-        text-decoration: none;
-
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 0.5rem;
-
-        &:focus {
-          box-shadow: none;
-        }
-      }
-
-      &:hover {
-        border-bottom: 1px solid ${(props) => props.theme.blue};
-      }
-    }
   }
 
   > p {
@@ -99,6 +73,32 @@ export const ProfileTextContent = styled.div`
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+`
+
+export const LinkWrapper = styled.div`
+  border: 0;
+
+  a {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: ${(props) => props.theme.blue};
+
+    text-transform: uppercase;
+    text-decoration: none;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  &:hover {
+    border-bottom: 1px solid ${(props) => props.theme.blue};
   }
 `
 

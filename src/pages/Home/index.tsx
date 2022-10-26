@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBuilding,
@@ -6,10 +7,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
 
+import { api } from '../../services/api'
+
 import { Input } from './components/Input'
 
 import {
   HomeContainer,
+  LinkWrapper,
   PostBox,
   PostsContainer,
   PostsHeader,
@@ -19,47 +23,144 @@ import {
   ProfileImage,
   ProfileTextContent,
 } from './styles'
+import { Loading } from '../../components/Loading/Loading'
+
+interface IssueProps {
+  id: number
+  html_url: string
+  title: string
+  body: string
+  number: number
+  created_at: Date
+}
+
+interface GithubUserProfileResponseProps {
+  avatar_url?: string
+  name?: string
+  html_url: string
+  bio?: string
+  login: string
+  company?: string
+  followers: number
+}
+
+interface GetGithubIssuesRequest {
+  search?: string
+}
+
+interface GetGithubIssuesResponse {
+  items: IssueProps[]
+}
+
+const USER = 'bruno-fialho'
+const REPO = 'ignite22-desafio-03-blog-posts'
 
 export function Home() {
+  const [githubUserProfile, setGithubUserProfile] =
+    useState<GithubUserProfileResponseProps>(
+      {} as GithubUserProfileResponseProps,
+    )
+  const [githubRepoIssues, setGithubRepoIssues] = useState<IssueProps[]>([])
+
+  async function getGithubProfile() {
+    try {
+      const { data } = await api.get<GithubUserProfileResponseProps>(
+        '/users/bruno-fialho',
+      )
+
+      setGithubUserProfile({
+        avatar_url: data.avatar_url,
+        name: data.name,
+        html_url: data.html_url,
+        bio: data.bio,
+        login: data.login,
+        company: data.company,
+        followers: data.followers,
+      })
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
+
+  async function getGithubIssues({ search }: GetGithubIssuesRequest) {
+    try {
+      const { data } = await api.get<GetGithubIssuesResponse>(
+        '/search/issues',
+        {
+          params: {
+            q: search
+              ? `${search}repo:${USER}/${REPO}`
+              : `repo:${USER}/${REPO}`,
+          },
+        },
+      )
+
+      const issues: IssueProps[] = data.items.map((item: IssueProps) => {
+        return {
+          id: item.id,
+          html_url: item.html_url,
+          title: item.title,
+          body: item.body,
+          number: item.number,
+          created_at: item.created_at,
+        }
+      })
+
+      setGithubRepoIssues(issues)
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
+
+  useEffect(() => {
+    getGithubProfile()
+    getGithubIssues({})
+  }, [])
+
+  if (
+    Object.keys(githubUserProfile).length === 0 ||
+    githubRepoIssues.length === 0
+  ) {
+    return <Loading />
+  }
+
   return (
     <HomeContainer>
       <ProfileContainer>
-        <ProfileImage src="https://github.com/bruno-fialho.png" alt="" />
+        <ProfileImage src={githubUserProfile.avatar_url} alt="" />
 
         <ProfileTextContent>
           <header>
-            <h1>Bruno Fialho</h1>
+            <h1>{githubUserProfile.name}</h1>
 
-            <div>
+            <LinkWrapper>
               <a
-                href="https://github.com/bruno-fialho"
+                href={githubUserProfile.html_url}
                 target="_blank"
                 rel="noreferrer"
               >
                 github
                 <FontAwesomeIcon icon={faUpRightFromSquare} />
               </a>
-            </div>
+            </LinkWrapper>
           </header>
 
-          <p>
-            Tristique volutpat pulvinar vel massa, pellentesque egestas. Eu
-            viverra massa quam dignissim aenean malesuada suscipit. Nunc,
-            volutpat pulvinar vel mass.
-          </p>
+          <p>{githubUserProfile.bio}</p>
 
           <ProfileFooter>
             <div>
               <FontAwesomeIcon icon={faGithub} />
-              <p>bruno-fialho</p>
+              <p>{githubUserProfile.login}</p>
             </div>
-            <div>
-              <FontAwesomeIcon icon={faBuilding} />
-              <p>Company X</p>
-            </div>
+            {githubUserProfile.company && (
+              <div>
+                <FontAwesomeIcon icon={faBuilding} />
+                <p>{githubUserProfile.company}</p>
+              </div>
+            )}
             <div>
               <FontAwesomeIcon icon={faUserGroup} />
-              <p>32 seguidores</p>
+              <p>{githubUserProfile.followers} seguidores</p>
             </div>
           </ProfileFooter>
         </ProfileTextContent>
@@ -69,126 +170,27 @@ export function Home() {
         <PostsHeader>
           <div>
             <h3>Publicações</h3>
-            <span>6 publicações</span>
+            <span>
+              {githubRepoIssues.length}{' '}
+              {githubRepoIssues.length <= 1 ? 'publicação' : 'publicações'}
+            </span>
           </div>
+
           <Input type="text" placeholder="Buscar conteúdo" />
         </PostsHeader>
 
         <PostsList>
-          <PostBox>
-            <header>
-              <h3>JavaScript data types and data structures</h3>
-              <span>Há 1 dia</span>
-            </header>
-            <p>
-              Programming languages all have built-in data structures, but these
-              often differ from one language to another. This article attempts
-              to list the built-in data structures available in JavaScript and
-              what properties they have. These can be used to build other data
-              structures. Wherever possible, comparisons with other languages
-              are drawn. Dynamic typing JavaScript is a loosely typed and
-              dynamic language. Variables in JavaScript are not directly
-              associated with any particular value type, and any variable can be
-              assigned (and re-assigned) values of all types: let foo = 42; //
-              foo is now a number foo = &apos;bar&apos;; // foo is now a string
-              foo = true; // foo is now a boolean
-            </p>
-          </PostBox>
-          <PostBox>
-            <header>
-              <h3>JavaScript data types and data structures</h3>
-              <span>Há 2 dias</span>
-            </header>
-            <p>
-              Programming languages all have built-in data structures, but these
-              often differ from one language to another. This article attempts
-              to list the built-in data structures available in JavaScript and
-              what properties they have. These can be used to build other data
-              structures. Wherever possible, comparisons with other languages
-              are drawn. Dynamic typing JavaScript is a loosely typed and
-              dynamic language. Variables in JavaScript are not directly
-              associated with any particular value type, and any variable can be
-              assigned (and re-assigned) values of all types: let foo = 42; //
-              foo is now a number foo = &apos;bar&apos;; // foo is now a string
-              foo = true; // foo is now a boolean
-            </p>
-          </PostBox>
-          <PostBox>
-            <header>
-              <h3>JavaScript data types and data structures</h3>
-              <span>Há 1 semana</span>
-            </header>
-            <p>
-              Programming languages all have built-in data structures, but these
-              often differ from one language to another. This article attempts
-              to list the built-in data structures available in JavaScript and
-              what properties they have. These can be used to build other data
-              structures. Wherever possible, comparisons with other languages
-              are drawn. Dynamic typing JavaScript is a loosely typed and
-              dynamic language. Variables in JavaScript are not directly
-              associated with any particular value type, and any variable can be
-              assigned (and re-assigned) values of all types: let foo = 42; //
-              foo is now a number foo = &apos;bar&apos;; // foo is now a string
-              foo = true; // foo is now a boolean
-            </p>
-          </PostBox>
-          <PostBox>
-            <header>
-              <h3>JavaScript data types and data structures</h3>
-              <span>Há 2 semanas</span>
-            </header>
-            <p>
-              Programming languages all have built-in data structures, but these
-              often differ from one language to another. This article attempts
-              to list the built-in data structures available in JavaScript and
-              what properties they have. These can be used to build other data
-              structures. Wherever possible, comparisons with other languages
-              are drawn. Dynamic typing JavaScript is a loosely typed and
-              dynamic language. Variables in JavaScript are not directly
-              associated with any particular value type, and any variable can be
-              assigned (and re-assigned) values of all types: let foo = 42; //
-              foo is now a number foo = &apos;bar&apos;; // foo is now a string
-              foo = true; // foo is now a boolean
-            </p>
-          </PostBox>
-          <PostBox>
-            <header>
-              <h3>JavaScript data types and data structures</h3>
-              <span>Há 1 mês</span>
-            </header>
-            <p>
-              Programming languages all have built-in data structures, but these
-              often differ from one language to another. This article attempts
-              to list the built-in data structures available in JavaScript and
-              what properties they have. These can be used to build other data
-              structures. Wherever possible, comparisons with other languages
-              are drawn. Dynamic typing JavaScript is a loosely typed and
-              dynamic language. Variables in JavaScript are not directly
-              associated with any particular value type, and any variable can be
-              assigned (and re-assigned) values of all types: let foo = 42; //
-              foo is now a number foo = &apos;bar&apos;; // foo is now a string
-              foo = true; // foo is now a boolean
-            </p>
-          </PostBox>
-          <PostBox>
-            <header>
-              <h3>JavaScript data types and data structures</h3>
-              <span>Há 2 meses</span>
-            </header>
-            <p>
-              Programming languages all have built-in data structures, but these
-              often differ from one language to another. This article attempts
-              to list the built-in data structures available in JavaScript and
-              what properties they have. These can be used to build other data
-              structures. Wherever possible, comparisons with other languages
-              are drawn. Dynamic typing JavaScript is a loosely typed and
-              dynamic language. Variables in JavaScript are not directly
-              associated with any particular value type, and any variable can be
-              assigned (and re-assigned) values of all types: let foo = 42; //
-              foo is now a number foo = &apos;bar&apos;; // foo is now a string
-              foo = true; // foo is now a boolean
-            </p>
-          </PostBox>
+          {githubRepoIssues.map((post) => {
+            return (
+              <PostBox key={post.id}>
+                <header>
+                  <h3>{post.title}</h3>
+                  <span>{String(post.created_at)}</span>
+                </header>
+                <p>{post.body}</p>
+              </PostBox>
+            )
+          })}
         </PostsList>
       </PostsContainer>
     </HomeContainer>
