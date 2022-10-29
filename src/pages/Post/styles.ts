@@ -1,3 +1,4 @@
+import ReactMarkdown from 'react-markdown'
 import styled from 'styled-components'
 
 export const PostContainer = styled.main`
@@ -44,7 +45,7 @@ export const TitleContainer = styled.div`
     justify-content: space-between;
   }
 
-  h3 {
+  h1 {
     font-size: 1.5rem;
     color: ${(props) => props.theme['base-title']};
 
@@ -99,5 +100,49 @@ export const TitleFooter = styled.div`
     p {
       color: ${(props) => props.theme['base-span']};
     }
+  }
+`
+
+export const CustomReactMarkdown = styled(ReactMarkdown)`
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: 1rem;
+  }
+
+  * + h1,
+  * + h2,
+  * + h3,
+  * + h4,
+  * + h5,
+  * + h6 {
+    margin-top: 1.5rem;
+  }
+
+  p,
+  ul,
+  ol {
+    margin-bottom: 0.5rem;
+  }
+
+  table,
+  code,
+  pre {
+    margin-bottom: 0.75rem;
+  }
+
+  a {
+    color: ${(props) => props.theme.blue};
+  }
+
+  a:visited {
+    color: ${(props) => props.theme.blue};
+  }
+
+  a:hover {
+    opacity: 0.7;
   }
 `

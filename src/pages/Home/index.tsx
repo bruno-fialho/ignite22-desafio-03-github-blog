@@ -53,7 +53,7 @@ interface GetGithubIssuesResponse {
 }
 
 const USER = 'bruno-fialho'
-const REPO = 'ignite22-desafio-03-blog-posts'
+const REPO = 'ignite22-desafio-03-github-blog'
 
 export function Home() {
   const [githubUserProfile, setGithubUserProfile] =

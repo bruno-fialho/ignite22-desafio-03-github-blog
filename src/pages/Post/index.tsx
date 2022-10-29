@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, NavLink } from 'react-router-dom'
-import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { dracula } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCalendarDay,
@@ -17,6 +19,7 @@ import {
   PostContainer,
   TitleContainer,
   TitleFooter,
+  CustomReactMarkdown,
 } from './styles'
 
 interface GithubUserProfileResponseProps {
@@ -28,7 +31,7 @@ interface GithubUserProfileResponseProps {
 }
 
 const USER = 'bruno-fialho'
-const REPO = 'ignite22-desafio-03-blog-posts'
+const REPO = 'ignite22-desafio-03-github-blog'
 
 export function Post() {
   const [githubIssuePost, setGithubIssuePost] =
@@ -80,7 +83,7 @@ export function Post() {
           </LinkWrapper>
         </header>
 
-        <h3>{githubIssuePost.title}</h3>
+        <h1>{githubIssuePost.title}</h1>
 
         <TitleFooter>
           <div>
@@ -99,7 +102,32 @@ export function Post() {
       </TitleContainer>
 
       {githubIssuePost && (
-        <ReactMarkdown>{githubIssuePost.body || ''}</ReactMarkdown>
+        <CustomReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            h1: 'h2',
+            h2: 'h3',
+            code({ node, inline, className, style, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '')
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  style={dracula}
+                  language={match[1]}
+                  PreTag="div"
+                  {...props}
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              ) : (
+                <code style={style} className={className} {...props}>
+                  {children}
+                </code>
+              )
+            },
+          }}
+        >
+          {githubIssuePost.body || ''}
+        </CustomReactMarkdown>
       )}
     </PostContainer>
   )
