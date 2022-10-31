@@ -184,7 +184,7 @@ export function Home() {
         <PostsList>
           {githubRepoIssues.map((post) => {
             return (
-              <PostBox key={post.id}>
+              <PostBox key={post.id} href={`/post/${post.number}`}>
                 <header>
                   <h3>{post.title}</h3>
                   <span>

@@ -173,14 +173,16 @@ export const PostsList = styled.div`
   gap: 2rem;
 `
 
-export const PostBox = styled.div`
+export const PostBox = styled.a`
   width: 100%;
   height: 16.25rem;
   padding: 2rem;
   border-radius: 10px;
   border: 2px solid transparent;
   cursor: pointer;
+  text-decoration: none;
 
+  color: ${(props) => props.theme['base-text']};
   background-color: ${(props) => props.theme['base-post']};
 
   header {
