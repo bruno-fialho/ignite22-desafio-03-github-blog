@@ -128,7 +128,7 @@ export const ProfileFooter = styled.div`
   }
 `
 
-export const PostsContainer = styled.div`
+export const PostsContainer = styled.form`
   width: 100%;
   height: 100%;
 

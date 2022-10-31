@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBuilding,
@@ -11,6 +12,7 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 import { api } from '../../services/api'
 
+import { Loading } from '../../components/Loading/Loading'
 import { Input } from './components/Input'
 
 import {
@@ -25,7 +27,6 @@ import {
   ProfileImage,
   ProfileTextContent,
 } from './styles'
-import { Loading } from '../../components/Loading/Loading'
 
 interface IssueProps {
   id: number
@@ -63,6 +64,13 @@ export function Home() {
       {} as GithubUserProfileResponseProps,
     )
   const [githubRepoIssues, setGithubRepoIssues] = useState<IssueProps[]>([])
+  const [filteredGithubRepoIssues, setFilteredGithubRepoIssues] = useState<
+    IssueProps[]
+  >([])
+
+  const { register, watch } = useForm()
+
+  const search = watch('search')
 
   async function getGithubProfile() {
     try {
@@ -109,10 +117,25 @@ export function Home() {
       })
 
       setGithubRepoIssues(issues)
+      setFilteredGithubRepoIssues(issues)
     } catch (error) {
       console.log('error', error)
     }
   }
+
+  useEffect(() => {
+    if (githubRepoIssues && githubRepoIssues.length > 0) {
+      if (search) {
+        const filteredIssues = githubRepoIssues.filter(
+          (item) =>
+            item.title.toLowerCase().includes(search.toLowerCase()) ||
+            item.body.toLowerCase().includes(search.toLowerCase()),
+        )
+
+        setFilteredGithubRepoIssues(filteredIssues)
+      }
+    }
+  }, [search, githubRepoIssues])
 
   useEffect(() => {
     getGithubProfile()
@@ -178,11 +201,15 @@ export function Home() {
             </span>
           </div>
 
-          <Input type="text" placeholder="Buscar conteúdo" />
+          <Input
+            type="text"
+            placeholder="Buscar conteúdo"
+            {...register('search')}
+          />
         </PostsHeader>
 
         <PostsList>
-          {githubRepoIssues.map((post) => {
+          {filteredGithubRepoIssues.map((post) => {
             return (
               <PostBox key={post.id} href={`/post/${post.number}`}>
                 <header>
