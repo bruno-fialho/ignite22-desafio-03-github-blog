@@ -11,6 +11,8 @@ import {
   faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
+import { formatDistanceToNow } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
 
 import { api } from '../../services/api'
 
@@ -21,6 +23,7 @@ import {
   TitleFooter,
   CustomReactMarkdown,
 } from './styles'
+import { Loading } from '../../components/Loading/Loading'
 
 interface GithubUserProfileResponseProps {
   title?: string
@@ -65,6 +68,10 @@ export function Post() {
     }
   }, [number])
 
+  if (!githubIssuePost || Object.keys(githubIssuePost).length === 0) {
+    return <Loading />
+  }
+
   return (
     <PostContainer>
       <TitleContainer>
@@ -92,7 +99,12 @@ export function Post() {
           </div>
           <div>
             <FontAwesomeIcon icon={faCalendarDay} />
-            <p>{String(githubIssuePost.created_at)}</p>
+            <p>
+              {formatDistanceToNow(new Date(githubIssuePost.created_at), {
+                addSuffix: true,
+                locale: ptBR,
+              })}
+            </p>
           </div>
           <div>
             <FontAwesomeIcon icon={faComment} />

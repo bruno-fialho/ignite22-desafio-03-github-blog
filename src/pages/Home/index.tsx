@@ -6,6 +6,8 @@ import {
   faUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons'
 import { faGithub } from '@fortawesome/free-brands-svg-icons'
+import { formatDistanceToNow } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
 
 import { api } from '../../services/api'
 
@@ -185,7 +187,12 @@ export function Home() {
               <PostBox key={post.id}>
                 <header>
                   <h3>{post.title}</h3>
-                  <span>{String(post.created_at)}</span>
+                  <span>
+                    {formatDistanceToNow(new Date(post.created_at), {
+                      addSuffix: true,
+                      locale: ptBR,
+                    })}
+                  </span>
                 </header>
                 <p>{post.body}</p>
               </PostBox>
