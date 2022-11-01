@@ -223,3 +223,10 @@ export const PostBox = styled.a`
     border: 2px solid ${(props) => props.theme['base-label']};
   }
 `
+
+export const EmptyListText = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`

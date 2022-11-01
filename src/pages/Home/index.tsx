@@ -12,10 +12,10 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 import { api } from '../../services/api'
 
-import { Loading } from '../../components/Loading/Loading'
 import { Input } from './components/Input'
 
 import {
+  EmptyListText,
   HomeContainer,
   LinkWrapper,
   PostBox,
@@ -64,9 +64,6 @@ export function Home() {
       {} as GithubUserProfileResponseProps,
     )
   const [githubRepoIssues, setGithubRepoIssues] = useState<IssueProps[]>([])
-  const [filteredGithubRepoIssues, setFilteredGithubRepoIssues] = useState<
-    IssueProps[]
-  >([])
 
   const { register, watch } = useForm()
 
@@ -117,37 +114,29 @@ export function Home() {
       })
 
       setGithubRepoIssues(issues)
-      setFilteredGithubRepoIssues(issues)
     } catch (error) {
       console.log('error', error)
     }
   }
 
   useEffect(() => {
-    if (githubRepoIssues && githubRepoIssues.length > 0) {
-      if (search) {
-        const filteredIssues = githubRepoIssues.filter(
-          (item) =>
-            item.title.toLowerCase().includes(search.toLowerCase()) ||
-            item.body.toLowerCase().includes(search.toLowerCase()),
-        )
+    if (search) {
+      async function searchIssues(search?: string) {
+        await getGithubIssues({ search })
+      }
 
-        setFilteredGithubRepoIssues(filteredIssues)
+      if (search.length > 2) {
+        searchIssues(search)
+      } else if (search.length === 1) {
+        searchIssues()
       }
     }
-  }, [search, githubRepoIssues])
+  }, [search])
 
   useEffect(() => {
     getGithubProfile()
     getGithubIssues({})
   }, [])
-
-  if (
-    Object.keys(githubUserProfile).length === 0 ||
-    githubRepoIssues.length === 0
-  ) {
-    return <Loading />
-  }
 
   return (
     <HomeContainer>
@@ -208,24 +197,30 @@ export function Home() {
           />
         </PostsHeader>
 
-        <PostsList>
-          {filteredGithubRepoIssues.map((post) => {
-            return (
-              <PostBox key={post.id} href={`/post/${post.number}`}>
-                <header>
-                  <h3>{post.title}</h3>
-                  <span>
-                    {formatDistanceToNow(new Date(post.created_at), {
-                      addSuffix: true,
-                      locale: ptBR,
-                    })}
-                  </span>
-                </header>
-                <p>{post.body}</p>
-              </PostBox>
-            )
-          })}
-        </PostsList>
+        {githubRepoIssues.length > 0 ? (
+          <PostsList>
+            {githubRepoIssues.map((post) => {
+              return (
+                <PostBox key={post.id} href={`/post/${post.number}`}>
+                  <header>
+                    <h3>{post.title}</h3>
+                    <span>
+                      {formatDistanceToNow(new Date(post.created_at), {
+                        addSuffix: true,
+                        locale: ptBR,
+                      })}
+                    </span>
+                  </header>
+                  <p>{post.body}</p>
+                </PostBox>
+              )
+            })}
+          </PostsList>
+        ) : (
+          <EmptyListText>
+            <p>Sem resultados...</p>
+          </EmptyListText>
+        )}
       </PostsContainer>
     </HomeContainer>
   )
